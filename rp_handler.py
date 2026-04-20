@@ -3,8 +3,11 @@ import torch
 import runpod
 import time
 from transformers import pipeline
+import os
 
 def handler(event):
+    print("ENV DEBUG:", os.getenv("MY_KEY"))
+
     print(f"Worker Start")
     input = event['input']
 
@@ -20,4 +23,4 @@ def handler(event):
     return prompt 
 
 if __name__ == '__main__':
-    runpod.serverless.start({'handler': handler })
+    runpod.serverless.start({'handler': handler})
