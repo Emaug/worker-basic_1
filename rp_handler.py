@@ -1,14 +1,15 @@
+import os, base64
+from io import BytesIO
+
 import torch
 import runpod
-import os
 from diffusers import StableDiffusionXLPipeline
 from huggingface_hub import login
 
-# 🔐 login med env variabel
 HF_TOKEN = os.getenv("MY_KEY")
-login(token=HF_TOKEN)
+if HF_TOKEN:
+    login(token=HF_TOKEN)
 
-# 🔥 ladda modell EN gång (globalt = snabbare)
 model_id = "stabilityai/stable-diffusion-xl-base-1.0"
 
 pipe = StableDiffusionXLPipeline.from_pretrained(
@@ -17,17 +18,13 @@ pipe = StableDiffusionXLPipeline.from_pretrained(
     use_safetensors=True
 )
 
-pipe.enable_model_cpu_offload()
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
-pipe = pipe.to(device)
-
+# Choose ONE:
+pipe = pipe.to("cuda")  # if you have VRAM
+# OR: pipe.enable_model_cpu_offload()
 
 def handler(event):
-    input = event["input"]
-    prompt = input.get("prompt", "a futuristic city at sunset")
-
-    print(f"Generating: {prompt}")
+    inp = event.get("input", {})
+    prompt = inp.get("prompt", "a futuristic city at sunset")
 
     image = pipe(
         prompt=prompt,
@@ -35,15 +32,8 @@ def handler(event):
         guidance_scale=7.5
     ).images[0]
 
-    # spara temporärt
-    output_path = "/tmp/output.png"
-    image.save(output_path)
+    buf = BytesIO()
+    image.save(buf, format="PNG")
+    return {"png_base64": base64.b64encode(buf.getvalue()).decode()}
 
-    return {
-        "message": "done",
-        "image_path": output_path
-    }
-
-
-if __name__ == "__main__":
-    runpod.serverless.start({"handler": handler})
+runpod.serverless.start({"handler": handler})
