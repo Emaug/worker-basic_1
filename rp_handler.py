@@ -8,21 +8,23 @@ from huggingface_hub import login
 import os
 import base64
 from io import BytesIO
+key = os.getenv("MY_KEY")
+print("ENV DEBUG:", key)
+login(token=key)
 
+# modell
+model_id = "stabilityai/stable-diffusion-xl-base-1.0"
+
+# ladda pipeline
+pipe = StableDiffusionXLPipeline.from_pretrained(
+    model_id,
+    torch_dtype=torch.float16,
+    use_safetensors=True
+)
+
+pipe.enable_model_cpu_offload() 
 def handler(event):
-    key = os.getenv("MY_KEY")
-    print("ENV DEBUG:", key)
-    login(token=key)
-
-    # modell
-    model_id = "stabilityai/stable-diffusion-xl-base-1.0"
     
-    # ladda pipeline
-    pipe = StableDiffusionXLPipeline.from_pretrained(
-        model_id,
-        torch_dtype=torch.float16,
-        use_safetensors=True
-    )
 
     print(f"Worker Start")
     input = event['input']
