@@ -5,6 +5,8 @@ ENV HF_HOME=/app/models
 
 WORKDIR /
 COPY requirements.txt /requirements.txt
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+RUN pip install diffusers transformers accelerate safetensors huggingface_hub
 RUN pip install -r requirements.txt
 COPY rp_handler.py /
 
