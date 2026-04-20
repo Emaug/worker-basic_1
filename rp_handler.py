@@ -1,5 +1,9 @@
+import sys
+import torch
 import runpod
-import time  
+import time
+import signal
+from transformers import pipeline
 
 def handler(event):
     print(f"Worker Start")
