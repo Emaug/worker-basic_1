@@ -1,39 +1,23 @@
-import os, base64
-from io import BytesIO
-
+import sys
 import torch
 import runpod
-from diffusers import StableDiffusionXLPipeline
-from huggingface_hub import login
-
-HF_TOKEN = os.getenv("MY_KEY")
-if HF_TOKEN:
-    login(token=HF_TOKEN)
-
-model_id = "stabilityai/stable-diffusion-xl-base-1.0"
-
-pipe = StableDiffusionXLPipeline.from_pretrained(
-    model_id,
-    torch_dtype=torch.float16,
-    use_safetensors=True
-)
-
-# Choose ONE:
-pipe = pipe.to("cuda")  # if you have VRAM
-# OR: pipe.enable_model_cpu_offload()
+import time
+from transformers import pipeline
 
 def handler(event):
-    inp = event.get("input", {})
-    prompt = inp.get("prompt", "a futuristic city at sunset")
+    print(f"Worker Start")
+    input = event['input']
 
-    image = pipe(
-        prompt=prompt,
-        num_inference_steps=30,
-        guidance_scale=7.5
-    ).images[0]
+    prompt = input.get('prompt')  
+    seconds = input.get('seconds', 0)  
 
-    buf = BytesIO()
-    image.save(buf, format="PNG")
-    return {"png_base64": base64.b64encode(buf.getvalue()).decode()}
+    print(f"Received prompt: {prompt}")
+    print(f"Sleeping for {seconds} seconds...")
 
-runpod.serverless.start({"handler": handler})
+    # Replace the sleep code with your Python function to generate images, text, or run any machine learning workload
+    time.sleep(seconds)  
+
+    return prompt 
+
+if __name__ == '__main__':
+    runpod.serverless.start({'handler': handler })
