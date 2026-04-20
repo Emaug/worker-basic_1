@@ -1,14 +1,13 @@
-FROM runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404
-FROM python:3.10-slim
+FROM runpod/pytorch:3.10-2.1.2-cuda12.1
 
 ENV PYTHONUNBUFFERED=1
-ENV HF_HOME=/app/models
+ENV HF_HOME=/workspace/models
 
-WORKDIR /
-COPY requirements.txt /requirements.txt
-RUN pip install -r requirements.txt
-RUN python -c "from diffusers import StableDiffusionXLPipeline; StableDiffusionXLPipeline.from_pretrained('stabilityai/stable-diffusion-xl-base-1.0')"
-COPY rp_handler.py /
+WORKDIR /app
 
-# Start the container
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY rp_handler.py .
+
 CMD ["python3", "-u", "rp_handler.py"]
