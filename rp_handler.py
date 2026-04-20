@@ -1,48 +1,25 @@
-import runpod
+import sys
 import torch
-from diffusers import StableDiffusionXLPipeline
-
-pipe = None
-
-def load_model():
-    global pipe
-    if pipe is None:
-        print("Loading SDXL model...")
-        pipe = StableDiffusionXLPipeline.from_pretrained(
-            "stabilityai/stable-diffusion-xl-base-1.0",
-            torch_dtype=torch.float16,
-            variant="fp16"
-        ).to("cuda")
-    return pipe
+import runpod
+import time  
+import time
+import signal
+from transformers import pipeline
 
 def handler(event):
-    input_data = event["input"]
-    prompt = input_data.get("prompt", "a photo of a cat")
-    steps = input_data.get("steps", 30)
-    guidance = input_data.get("guidance", 7.5)
-    seed = input_data.get("seed", None)
+    print(f"Worker Start")
+    input = event['input']
 
-    pipe = load_model()
+    prompt = input.get('prompt')  
+    seconds = input.get('seconds', 0)  
 
-    generator = torch.Generator("cuda")
-    if seed is not None:
-        generator.manual_seed(seed)
+    print(f"Received prompt: {prompt}")
+    print(f"Sleeping for {seconds} seconds...")
 
-    print(f"Generating image for prompt: {prompt}")
+    # Replace the sleep code with your Python function to generate images, text, or run any machine learning workload
+    time.sleep(seconds)  
 
-    image = pipe(
-        prompt,
-        num_inference_steps=steps,
-        guidance_scale=guidance,
-        generator=generator
-    ).images[0]
+    return prompt 
 
-    output_path = "/tmp/output.png"
-    image.save(output_path)
-
-    return {
-        "prompt": prompt,
-        "image_path": output_path
-    }
-
-runpod.serverless.start({"handler": handler})
+if __name__ == '__main__':
+    runpod.serverless.start({'handler': handler })
