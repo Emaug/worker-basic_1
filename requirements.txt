@@ -1,1 +1,7 @@
 runpod==1.7.12
+torch
+diffusers
+transformers
+accelerate
+safetensors
+huggingface_hub
