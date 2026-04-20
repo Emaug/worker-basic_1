@@ -6,7 +6,6 @@ ENV HF_HOME=/app/models
 WORKDIR /
 COPY requirements.txt /requirements.txt
 RUN pip install -r requirements.txt
-RUN python -c "from diffusers import StableDiffusionXLPipeline; StableDiffusionXLPipeline.from_pretrained('stabilityai/stable-diffusion-xl-base-1.0')"
 COPY rp_handler.py /
 
 # Start the container
